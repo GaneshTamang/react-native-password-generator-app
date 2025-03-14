@@ -2,7 +2,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 
 const Custom_Buttons = ({ buttonTitle: title, actionOnBtnPress: callbackAction, }:
-    { buttonTitle: string, actionOnBtnPress: () => void, feedBIsDisabled: boolean }) => {
+    { buttonTitle: string, actionOnBtnPress: () => void, }) => {
 
     return (
 
