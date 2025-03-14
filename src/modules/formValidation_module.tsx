@@ -1,19 +1,28 @@
 
 // formValidation.tsx
 
-import { object } from "yup";
 
-// Define the type of the state object
+
+// typo for form stateObject
+/**
+ * 
+ *  Typo for form state Object
+ */
 export type myFormState = {
-  inputNumber: string;
-  formErrors: { [key: string]: string };
+  passwordLength: string;
+  formErrors: formErrorMessage;
   isValid: boolean;
 };
 
+/**
+ * 
+ *  type for formError message object => [key] : value 
+ */
+type formErrorMessage = { [formkey: string]: string };
 // Validate form input
-export const checkFormErrorsForValidation = (inputText: string) => {
+export const checkFormErrorsForValidation = (inputText: string): formErrorMessage => {
   // initing empty error
-  let currentErrors: { [key: string]: string } = {};
+  let currentErrors: { [formkey: string]: string } = {};
   // checking errors and adding
   if (!inputText.trim()) {
     currentErrors.inputText = "Input cannot be empty";
@@ -45,7 +54,7 @@ export const handleChange = (
   const validityCheckIfObjKeyValExists = Object.keys(currentErrors).length === 0;
   changeStateOnTyping((prevState) => ({
     ...prevState, // Keep previous state values
-    inputNumber: incomingKeyboardInput, // Update only inputNumber
+    passwordLength: incomingKeyboardInput, // Update only inputNumber
     formErrors: currentErrors, // Update form errors
     isValid: validityCheckIfObjKeyValExists, // Update validity
   }));

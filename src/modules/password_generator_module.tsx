@@ -1,9 +1,9 @@
+import { myFormState } from "./formValidation_module";
 
 
-import React from "react";
 
 export type passwordGenerationOptions = {
-    passwordLength?: number | string,
+    passwordLength: number | string,
     isPasswordGenerated: boolean,
     includeUpper: boolean,
     includeLower: boolean,
@@ -15,7 +15,11 @@ export type passwordGenerationOptions = {
 //  here making propertyname value mandatory 
 // e.g add({first,second}:{first:number,second:number}){returen a+b} 
 // this makes function property name mandatory for function call add(mandatory )
-export const generatePasswordString = ({ passwordLength, passwordOptions, changePasswordOptionsState, changeStatePassword }
+export const generatePasswordString = ({
+    passwordLength,
+    passwordOptions,
+    changePasswordOptionsState,
+    changeStatePassword }
     : {
         passwordLength: number | string,
         passwordOptions: passwordGenerationOptions,
@@ -68,11 +72,12 @@ const createPassword = (characters: string, passwordLength: number): string => {
 
 // reset state rerender
 export const resetPasswordState = (
-    setpass: React.Dispatch<React.SetStateAction<string>>,
+    resetpass: React.Dispatch<React.SetStateAction<string>>,
     resetPasswordOptions: React.Dispatch<React.SetStateAction<passwordGenerationOptions>>,
+    resetFormstate: React.Dispatch<React.SetStateAction<myFormState>>,
 
 ) => {
-    resetPasswordOptions({
+    resetPasswordOptions({  //reset options & render its react state action
         passwordLength: "",
         isPasswordGenerated: false,
         includeUpper: false,
@@ -80,4 +85,11 @@ export const resetPasswordState = (
         includeNumber: false,
         includeSymbol: false,
     });
+    resetpass("");//reset passvalue and re-render
+    resetFormstate({
+        passwordLength: "",
+        formErrors: {},
+        isValid: false,
+    })
+
 };

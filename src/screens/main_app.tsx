@@ -1,16 +1,13 @@
-import { StyleSheet, Text, View, TextInput, SafeAreaView, KeyboardAvoidingView, ScrollView } from "react-native";
+import { StyleSheet, Text, View, TextInput, SafeAreaView, KeyboardAvoidingView, ScrollView, Alert, useColorScheme, } from "react-native";
 import React, { useState } from "react";
 import BouncyCheckbox from "react-native-bouncy-checkbox";
-// custom widgets 
+// custom widgets imports
 import CustomCheckbox from "../custom_widgets/checkBox";
 import Custom_Buttons from "../custom_widgets/custom_buttons";
-import { generatePasswordString, passwordGenerationOptions, resetPasswordState } from "./password_generator";
-import { handleChange, myFormState } from "./formValidation_module";
-
-
-// typos
-
-
+import PasswordCopyCard from "../custom_widgets/passwordCopyCard"
+// modules for form validation
+import { generatePasswordString, passwordGenerationOptions, resetPasswordState } from "../modules/password_generator_module";
+import { handleChange, myFormState, } from "../modules/formValidation_module";
 
 
 
@@ -18,10 +15,10 @@ import { handleChange, myFormState } from "./formValidation_module";
 // main section 
 
 
-const passwordGenApp = (): React.JSX.Element => {
+const passWordGEnAppMain = (): React.JSX.Element => {
 
   const [formstate, setFormState] = useState<myFormState>({
-    inputNumber: "",
+    passwordLength: "",
     formErrors: {},
     isValid: false,
   })
@@ -34,8 +31,10 @@ const passwordGenApp = (): React.JSX.Element => {
     includeNumber: false,
     includeSymbol: false,
   });
+  // theme for dark and  light
 
-  // const [input, setInput] = useState<string>("");
+  const theme = useColorScheme();//detect color theme "dark|light|undefined"
+  const useStyles = theme == "dark" ? mystyles : mystyles;//use
 
 
 
@@ -44,62 +43,72 @@ const passwordGenApp = (): React.JSX.Element => {
   return (
     <KeyboardAvoidingView style={{ flexGrow: 1, }}>
 
-      <SafeAreaView style={styles.appScreenContainer}>
+      <SafeAreaView style={useStyles.appScreenContainer}>
 
         <ScrollView>
-          <View style={styles.innerContainer}>
+          <View style={useStyles.innerContainer}>
 
-            <Text style={styles.headingLabel}>Password Generator</Text>
+            <Text style={useStyles.headingLabel}>Password Generator</Text>
 
             {/* Input area section */}
 
-            <View style={styles.innerContainer}>
+            <View style={useStyles.innerContainer}>
 
 
 
               <View style={{ flexDirection: "row", padding: 20, justifyContent: "center" }}>
 
-                <Text style={styles.textLabel}>Enter Number  |</Text>
+                <Text style={useStyles.textLabel}>Enter Number  |</Text>
 
                 <TextInput
-                  style={styles.inputDesign}
+                  style={useStyles.inputDesign}
                   placeholder="Ex.8"
                   keyboardType="number-pad"
                   multiline={true}
-                  value={formstate.inputNumber}
-                  onChange={
-
-                    (event) => {
-                      const text = event.nativeEvent.text;
-                      setPasswordOPtions({ ...passwordOptions, passwordLength: event.nativeEvent.text });
-                      handleChange(text, setFormState);
-                    }}
-
-
+                  value={formstate.passwordLength}
+                  onChangeText={(text) => {
+                    setPasswordOPtions({ ...passwordOptions, passwordLength: text });
+                    handleChange(text, setFormState);  // Ensure correct function execution
+                  }}
                 />
 
 
 
 
+
               </View>
-              {/* render if error */}
+
+              {/* render if generated else return null*/}
+              {passwordOptions.isPasswordGenerated ? <PasswordCopyCard generatedPassword={password} /> : null}
+
+              {/* testing render if error */}
+
+              {/* <Text>{JSON.stringify(formstate)}</Text> */}
+
+              {/* test  password generation */}
+
+              {/* <Text style={useStyles.textLabel}>password:{password}</Text> */}
+
+
+              {/* render for validation */}
               {/* check if true then render */}
               {Object.entries(formstate.formErrors).map(
-                ([key, errorMessage]) => (
-                  <Text key={key} style={styles.errorText}>
-                    {key}: {errorMessage}
+                ([formstateKey, formStateErrorMessage]) => (
+                  <Text key={formstateKey} style={useStyles.errorText}>
+                    {formstateKey}: {formStateErrorMessage}
                   </Text>
                 ))}
 
-              <Text style={styles.textLabel}>password:{password}</Text>
+
+
               {/* checkbox section */}
               {/* lowercase checkbox */}
-              <View>
-                <Text style={styles.headingLabel}>Include</Text>
-                <View style={styles.checkboxContainer}>
-                  <View >
-                    <Text style={styles.textLabel}>lower Case?-</Text>
-                  </View>
+              <View style={{ marginTop: 40, }}>
+                <Text style={useStyles.headingLabel}>Include</Text>
+                <View style={useStyles.checkboxContainer}>
+
+                  <Text style={useStyles.textLabel}>lower Case?</Text>
+
                   {/* direct method to use package */}
                   <BouncyCheckbox
                     isChecked={passwordOptions.includeLower}
@@ -148,55 +157,62 @@ const passwordGenApp = (): React.JSX.Element => {
 
 
               {/* buttons section */}
-              <View style={styles.buttonContainer}>
+              <View style={useStyles.buttonContainer}>
+
+
+                {/* generate password Button */}
                 <Custom_Buttons
                   buttonTitle="Generate Password"
-                  actionOnBtnPress={
-                    () => {
-                      generatePasswordString(
-                        {
-                          passwordLength: Number(formstate.inputNumber),
-                          passwordOptions: passwordOptions,
-                          changePasswordOptionsState: setPasswordOPtions,
-                          changeStatePassword: setPassword,
-                        }
-
-                      )
-
+                  actionOnBtnPress={() => {
+                    if (!formstate.passwordLength.trim()) {  // Check if input is empty
+                      Alert.alert('Error', 'Please enter a number');
+                      return;
                     }
-                  }
-                  feedBIsDisabled={false}
+
+                    if (!formstate.isValid) {  // Check if input is valid
+                      Alert.alert('Error', 'please enter the valid number for pasword  generation');
+                      return;
+                    }
+
+                    generatePasswordString({
+                      passwordLength: passwordOptions.passwordLength,
+                      passwordOptions: passwordOptions,
+                      changePasswordOptionsState: setPasswordOPtions,
+                      changeStatePassword: setPassword,
+                    });
+
+                    Alert.alert('Success', 'Password Created');
+                  }}
                 />
+
+                {/* Reset Button */}
                 <Custom_Buttons
                   buttonTitle="reset Password"
                   actionOnBtnPress={
                     () => {
 
-                      resetPasswordState(setPassword, setPasswordOPtions,);
-                      setFormState({ ...formstate, inputNumber: "" })
+                      resetPasswordState(setPassword, setPasswordOPtions, setFormState,);
+                      setFormState({ ...formstate, passwordLength: "", isValid: false });
+
 
 
                     }}
-                  feedBIsDisabled={false} />
+                />
                 {/* button section ended */}
 
 
               </View>
-              {/* <Text style={styles.headingLabel}> {input}</Text> */}
-              <Text style={styles.password}>password is ::{password}</Text>
-              <Text style={styles.password}>password options :  {JSON.stringify(passwordOptions)}</Text>
-              {/* <Text style={styles.password}>{characterListForGen}</Text> */}
+
+              {/* test */}
+              {/* <Text style={styles.password}>password is :{password}</Text>
+              <Text style={{ justifyContent: "center", alignContent: "center", alignSelf: "center", textAlign: "center", }}>password options :  {JSON.stringify(passwordOptions)}</Text> */}
+
             </View>
 
 
-
-
-
-
-            {passwordOptions ? (<View><Text>
-              test</Text></View>) : null}
-
           </View>
+
+
 
 
         </ScrollView>
@@ -209,13 +225,14 @@ const passwordGenApp = (): React.JSX.Element => {
 
   );
 };
-export default passwordGenApp;
+export default passWordGEnAppMain;
 
-const styles = StyleSheet.create({
+const mystyles = StyleSheet.create({
+
   appScreenContainer: {
     flex: 1,
 
-    // backgroundColor: "grey",
+    backgroundColor: "white",
 
 
   },
@@ -223,6 +240,7 @@ const styles = StyleSheet.create({
     flexGrow: 1, // Ensures ScrollView takes full height
   },
   innerContainer: {
+    backgroundColor: "white",
     flex: 1,
     marginTop: 10,
     padding: 10,
@@ -233,6 +251,8 @@ const styles = StyleSheet.create({
     color: "red",
     marginTop: 5,
     textAlign: "center",
+    fontSize: 15,
+    fontWeight: "bold",
   },
   headingLabel: {
     fontSize: 40,
@@ -272,7 +292,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "space-between",
     flexDirection: "row",
-    marginVertical: 10,
+    marginVertical: 40,
+    // marginHorizontal: 20,
 
 
   },
@@ -284,8 +305,18 @@ const styles = StyleSheet.create({
   checkboxContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
+    marginVertical: 15,
   },
+  passwordCopyCard: {
+    height: "50%",
+    width: "100%",
+    flex: 1,
+    elevation: 10,
+    shadowColor: "black",
+    shadowOpacity: 1,
 
+
+  }
 
 
 },
